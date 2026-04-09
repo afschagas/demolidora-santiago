@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta id="theme-color-meta" name="theme-color" content="#0c0c0c"/>
+<meta name="color-scheme" content="dark light"/>
+<script>
+(function(){try{var light=localStorage.getItem("theme")==="light";var h=document.documentElement;h.setAttribute("data-theme",light?"light":"dark");h.classList.toggle("dark",!light);var m=document.getElementById("theme-color-meta");if(m)m.setAttribute("content",light?"#f4f4f5":"#0c0c0c");}catch(e){document.documentElement.setAttribute("data-theme","dark");document.documentElement.classList.add("dark");}})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/png" href="/logo-demolidora-santiago.png"/>
+<title>Demolidora Santiago</title>
+<meta name="description" content="Demolição profissional em São Paulo e região"/>
+</head>
+<body>
+<script>document.body&&document.body.classList.remove("dark");</script>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
