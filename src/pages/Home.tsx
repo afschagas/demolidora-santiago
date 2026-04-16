@@ -1,5 +1,4 @@
 import Layout from "../components/Layout";
-import { FaWhatsapp } from "react-icons/fa";
 
 const HERO_BG =
   "https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=2000&q=80";
