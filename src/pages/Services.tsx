@@ -1,6 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import { CONTACT } from "../data/contact";
+import ImageCarousel from "../components/ImageCarousel";
+import { gallerySlidesForFolder } from "../data/serviceGalleries";
+import { getServiceBySlug, SERVICES, type ServiceDefinition, type ServiceIconId } from "../data/services";
 import {
   FaWhatsapp,
   FaHome,
@@ -12,38 +15,13 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 
-const servicos = [
-  {
-    icon: FaHome,
-    title: "Demolição residencial e predial",
-    desc:
-      "Casas, apartamentos, sobrados e edificações em área urbana. Contenção de poeira, segregação de materiais e operação compatível com vizinhança.",
-  },
-  {
-    icon: FaIndustry,
-    title: "Demolição industrial e comercial",
-    desc:
-      "Galpões, estruturas metálicas, pé direito alto e plantas com máquinas. Planejamento para desmontagem segura e retirada em prazos acordados.",
-  },
-  {
-    icon: FaTools,
-    title: "Demolição mecânica e apoio de máquinas",
-    desc:
-      "Uso de retroescavadeiras, rompedores e equipamentos adequados ao porte da obra, com operadores certificados e supervisão constante.",
-  },
-  {
-    icon: FaDraftingCompass,
-    title: "Demolição parcial e acertos estruturais",
-    desc:
-      "Remoção seletiva de lajes, paredes ou anexos sem comprometer o que deve permanecer. Ideal para reformas grandes e mudanças de layout.",
-  },
-  {
-    icon: FaTruck,
-    title: "Remoção, transporte e entulho",
-    desc:
-      "Carregamento, caçambas e destinação em locais licenciados. Documentação e fluxo organizado para sua obra não parar por falta de logística.",
-  },
-];
+const iconById: Record<ServiceIconId, typeof FaHome> = {
+  home: FaHome,
+  industry: FaIndustry,
+  tools: FaTools,
+  drafting: FaDraftingCompass,
+  truck: FaTruck,
+};
 
 const etapas = [
   { passo: "01", titulo: "Briefing e visita", texto: "Entendemos o imóvel, restrições e prazo desejado." },
@@ -52,49 +30,135 @@ const etapas = [
   { passo: "04", titulo: "Entrega", texto: "Limpeza, remoção de entulho e encerramento alinhado ao combinado." },
 ];
 
+function ServiceIcon({ id }: { id: ServiceIconId }) {
+  const Icon = iconById[id];
+  return <Icon className="text-lg" aria-hidden />;
+}
+
+function ServiceCard({ s, linkToDetail }: { s: ServiceDefinition; linkToDetail: boolean }) {
+  const Icon = iconById[s.iconId];
+  return (
+    <article className="theme-card p-5 md:p-6 flex flex-col hover:border-[#fc700f]/40 transition-colors group">
+      <div className="flex items-start gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#fc700f]/15 text-[#fc700f]">
+          <Icon className="text-lg" aria-hidden />
+        </span>
+        <h2 className="text-lg font-bold leading-snug pt-1.5 text-theme">{s.title}</h2>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed flex-1 text-theme-muted">{s.summary}</p>
+      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+        {linkToDetail && (
+          <Link
+            to={`/servicos/${s.slug}`}
+            className="inline-flex items-center gap-1 text-sm font-semibold text-[#fc700f] opacity-90 group-hover:opacity-100"
+          >
+            Ver detalhes
+            <FaArrowRight className="text-xs" aria-hidden />
+          </Link>
+        )}
+        <Link
+          to="/contato"
+          className="inline-flex items-center gap-1 text-sm font-semibold text-theme-muted hover:text-[#fc700f]"
+        >
+          Solicitar orçamento
+          <FaArrowRight className="text-xs" aria-hidden />
+        </Link>
+      </div>
+    </article>
+  );
+}
+
 export default function Services() {
+  const { slug } = useParams<{ slug: string }>();
+  const service = getServiceBySlug(slug);
+
+  if (slug && !service) {
+    return <Navigate to="/servicos" replace />;
+  }
+
+  const isDetail = Boolean(service);
+  const gallerySlides =
+    service?.galleryFolder != null ? gallerySlidesForFolder(service.galleryFolder, service.navLabel) : [];
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto px-4 py-8 md:py-10">
         <div className="grid lg:grid-cols-3 gap-8 lg:gap-10 lg:items-start">
           <div className="lg:col-span-2 space-y-8 min-w-0">
             <header>
-              <p className="text-[#fc700f] font-semibold text-sm uppercase tracking-wider">
-                Soluções completas
-              </p>
-              <h1 className="mt-2 text-3xl md:text-4xl font-extrabold text-theme leading-tight">
-                Nossos serviços cobrem do projeto à retirada do último resíduo
-              </h1>
-              <p className="mt-4 text-theme-muted text-base md:text-lg leading-relaxed">
-                Cada obra recebe <strong className="text-theme">diagnóstico e método próprios</strong>. Você
-                contrata uma equipe que domina demolição em ambiente urbano e industrial, com foco em
-                segurança, cumprimento de normas e respeito ao seu cronograma.
-              </p>
+              {isDetail && service ? (
+                <p className="text-[#fc700f] font-semibold text-sm tracking-wide">
+                  <Link to="/servicos" className="hover:underline underline-offset-2">Serviços</Link>
+                  <span className="mx-1.5 opacity-75" aria-hidden>
+                    |
+                  </span>
+                  <span>{service.navLabel}</span>
+                </p>
+              ) : (
+                <p className="text-[#fc700f] font-semibold text-sm uppercase tracking-wider">Soluções completas</p>
+              )}
+              {isDetail && service ? (
+                <>
+                  <h1 className="mt-3 text-3xl md:text-4xl font-extrabold text-theme leading-tight">{service.title}</h1>
+                  <p className="mt-4 text-theme-muted text-base md:text-lg leading-relaxed">{service.lead}</p>
+                  {gallerySlides.length > 0 && (
+                    <div className="mt-6">
+                      <ImageCarousel
+                        slides={gallerySlides}
+                        ariaLabel={`Fotos: ${service.navLabel}`}
+                        className="shadow-lg shadow-black/10"
+                      />
+                    </div>
+                  )}
+                  <ul className="mt-6 space-y-3 text-theme-muted text-base leading-relaxed">
+                    {service.bullets.map((line) => (
+                      <li key={line} className="flex gap-3">
+                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#fc700f]" aria-hidden />
+                        <span>{line}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <>
+                  <h1 className="mt-2 text-3xl md:text-4xl font-extrabold text-theme leading-tight">
+                    Nossos serviços cobrem do projeto à retirada do último resíduo
+                  </h1>
+                  <p className="mt-4 text-theme-muted text-base md:text-lg leading-relaxed">
+                    Cada obra recebe <strong className="text-theme">diagnóstico e método próprios</strong>. Você
+                    contrata uma equipe que domina demolição em ambiente urbano e industrial, com foco em segurança,
+                    cumprimento de normas e respeito ao seu cronograma.
+                  </p>
+                </>
+              )}
             </header>
 
-            <div className="grid sm:grid-cols-2 gap-4">
-              {servicos.map(({ icon: Icon, title, desc }) => (
-                <article
-                  key={title}
-                  className="theme-card p-5 md:p-6 flex flex-col hover:border-[#fc700f]/40 transition-colors group"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#fc700f]/15 text-[#fc700f]">
-                      <Icon className="text-lg" aria-hidden />
-                    </span>
-                    <h2 className="text-lg font-bold leading-snug pt-1.5 text-theme">{title}</h2>
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed flex-1 text-theme-muted">{desc}</p>
+            {!isDetail && (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {SERVICES.map((s) => (
+                  <ServiceCard key={s.slug} s={s} linkToDetail />
+                ))}
+              </div>
+            )}
+
+            {isDetail && service && (
+              <section className="theme-card p-5 md:p-6 flex flex-col sm:flex-row sm:items-start gap-4">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#fc700f]/15 text-[#fc700f]">
+                  <ServiceIcon id={service.iconId} />
+                </span>
+                <div className="min-w-0">
+                  <h2 className="text-lg font-bold text-theme">Resumo</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-theme-muted">{service.summary}</p>
                   <Link
                     to="/contato"
-                    className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#fc700f] opacity-90 group-hover:opacity-100"
+                    className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#fc700f]"
                   >
-                    Solicitar orçamento
+                    Solicitar orçamento deste serviço
                     <FaArrowRight className="text-xs" aria-hidden />
                   </Link>
-                </article>
-              ))}
-            </div>
+                </div>
+              </section>
+            )}
 
             <section className="theme-card p-5 md:p-7">
               <h2 className="text-xl font-bold text-theme">Como trabalhamos</h2>
@@ -132,9 +196,7 @@ export default function Services() {
 
           <aside className="space-y-5 lg:sticky lg:top-28">
             <div className="theme-card p-5 md:p-6">
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#fc700f]">
-                O que você garante
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#fc700f]">O que você garante</p>
               <ul className="mt-4 space-y-3 text-sm text-theme-muted">
                 <li className="flex gap-2">
                   <FaCheckCircle className="text-[#fc700f] shrink-0 mt-0.5" aria-hidden />
@@ -154,8 +216,7 @@ export default function Services() {
             <div className="theme-card p-5 md:p-6">
               <p className="font-bold text-theme text-lg">Orçamento prioritário</p>
               <p className="mt-2 text-sm text-theme-muted">
-                Envie fotos, endereço e prazo pelo WhatsApp. Priorizamos retorno rápido para obras em
-                andamento.
+                Envie fotos, endereço e prazo pelo WhatsApp. Priorizamos retorno rápido para obras em andamento.
               </p>
               <a
                 href={CONTACT.whatsappUrl}

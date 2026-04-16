@@ -29,15 +29,6 @@ export default function Home() {
             técnicas e eficientes para qualquer tipo de estrutura. Executamos demolição controlada,
             mecânica, manual e industrial com excelência e total responsabilidade.
           </p>
-          <a
-            href="https://wa.me/5511999999999"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-10 inline-flex items-center gap-3 border-2 border-white bg-transparent text-white uppercase font-bold tracking-wide text-sm sm:text-base px-8 py-3.5 rounded-sm shadow-lg shadow-black/35 transition-colors hover:bg-[#ff7900] hover:border-[#ff7900] hover:text-white"
-          >
-            <FaWhatsapp className="text-xl sm:text-2xl" />
-            Fale conosco
-          </a>
         </div>
       </section>
     </Layout>

@@ -49,8 +49,9 @@ export default function About() {
                 A Demolidora Santiago é sustentada por técnica, método e respeito ao seu projeto
               </h1>
               <p className="mt-4 text-theme-muted text-base md:text-lg leading-relaxed">
-                Atuamos em <strong className="text-theme">demolições completas e parciais</strong> em
-                São Paulo e região, com equipe própria e equipamentos adequados. Do primeiro alinhamento
+                Atuamos em <strong className="text-theme">demolições completas e parciais</strong> com
+                base na região de Casa Grande, Diadema, e atendimento na Grande São Paulo, com equipe própria
+                e equipamentos adequados. Do primeiro alinhamento
                 ao último caminhão de entulho, você conta com gente que trata sua obra como prioridade.
               </p>
             </header>
@@ -129,7 +130,7 @@ export default function About() {
                 </div>
                 <div>
                   <dt className="text-theme-muted text-xs">Cobertura</dt>
-                  <dd className="text-lg font-bold text-theme">SP e Grande SP</dd>
+                  <dd className="text-lg font-bold text-theme">Diadema e Grande SP</dd>
                 </div>
                 <div>
                   <dt className="text-theme-muted text-xs">Foco</dt>

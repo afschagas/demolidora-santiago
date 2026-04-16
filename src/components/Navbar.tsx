@@ -26,7 +26,7 @@ function NavItemWithMenu({
       <div className="absolute left-0 top-full z-[100] hidden min-w-[240px] pt-2 group-hover:block">
         <div className="nav-dropdown-panel">
           {items.map((it) => (
-            <Link key={it.to} to={it.to} className="nav-dropdown-link">
+            <Link key={`${it.label}-${it.to}`} to={it.to} className="nav-dropdown-link">
               {it.label}
             </Link>
           ))}
@@ -74,9 +74,9 @@ export default function Navbar() {
             label="Serviços"
             to="/servicos"
             items={[
-              { label: "Demolição residencial", to: "/servicos" },
-              { label: "Demolição industrial", to: "/servicos" },
-              { label: "Remoção de entulho", to: "/servicos" },
+              { label: "Demolição residencial", to: "/servicos/demolicao-residencial" },
+              { label: "Demolição industrial", to: "/servicos/demolicao-industrial-e-comercial" },
+              { label: "Remoção de entulho", to: "/servicos/remocao-entulho" },
             ]}
           />
           <NavItemWithMenu
@@ -136,13 +136,38 @@ export default function Navbar() {
             >
               Quem Somos
             </Link>
-            <Link
-              to="/servicos"
-              onClick={() => setOpen(false)}
-              className="py-2 text-[#fc700f] font-semibold uppercase text-sm"
-            >
-              Serviços
-            </Link>
+            <div className="py-2">
+              <Link
+                to="/servicos"
+                onClick={() => setOpen(false)}
+                className="text-[#fc700f] font-semibold uppercase text-sm"
+              >
+                Serviços
+              </Link>
+              <div className="mt-2 ml-2 flex flex-col gap-1 border-l border-[#fc700f]/35 pl-3">
+                <Link
+                  to="/servicos/demolicao-residencial"
+                  onClick={() => setOpen(false)}
+                  className="text-sm text-theme-muted hover:text-[#fc700f] font-medium"
+                >
+                  Demolição residencial
+                </Link>
+                <Link
+                  to="/servicos/demolicao-industrial-e-comercial"
+                  onClick={() => setOpen(false)}
+                  className="text-sm text-theme-muted hover:text-[#fc700f] font-medium"
+                >
+                  Demolição industrial
+                </Link>
+                <Link
+                  to="/servicos/remocao-entulho"
+                  onClick={() => setOpen(false)}
+                  className="text-sm text-theme-muted hover:text-[#fc700f] font-medium"
+                >
+                  Remoção de entulho
+                </Link>
+              </div>
+            </div>
             <Link
               to="/contato"
               onClick={() => setOpen(false)}

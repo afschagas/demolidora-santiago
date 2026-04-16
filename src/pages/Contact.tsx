@@ -1,5 +1,6 @@
+import { useState } from "react";
 import Layout from "../components/Layout";
-import { CONTACT } from "../data/contact";
+import { CONTACT, contactFormSubmitAjaxUrl } from "../data/contact";
 import {
   FaPhone,
   FaWhatsapp,
@@ -14,6 +15,74 @@ import {
 const inputClass = "form-input";
 
 export default function Contact() {
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const nome = String(fd.get("nome") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const telefone = String(fd.get("telefone") ?? "").trim();
+    const cidade = String(fd.get("cidade") ?? "").trim();
+    const assunto = String(fd.get("assunto") ?? "").trim();
+    const mensagem = String(fd.get("mensagem") ?? "").trim();
+
+    setStatus("sending");
+    setErrorMessage(null);
+
+    const pageUrl =
+      import.meta.env.VITE_PUBLIC_SITE_URL?.trim() ||
+      `${window.location.origin}${window.location.pathname}`;
+
+    const body: Record<string, string> = {
+      _subject: `Orçamento pelo site — ${nome || "visitante"}`,
+      _replyto: email,
+      _template: "table",
+      /** FormSubmit: evita localhost no e-mail quando a política de referrer não envia a URL correta (ver ajuda do FormSubmit). */
+      _url: pageUrl,
+      Identificação: "Solicitação de orçamento — Demolidora Santiago (formulário do site)",
+      "Nome completo": nome,
+      "E-mail": email,
+      "Telefone / WhatsApp": telefone,
+      "Cidade / obra": cidade || "—",
+      "Tipo de serviço": assunto || "—",
+      Mensagem: mensagem,
+    };
+
+    try {
+      const res = await fetch(contactFormSubmitAjaxUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(body),
+      });
+      const raw = await res.text();
+      let parsed: { success?: string | boolean; message?: string } = {};
+      try {
+        parsed = JSON.parse(raw) as typeof parsed;
+      } catch {
+        /* FormSubmit às vezes responde texto simples */
+      }
+
+      if (!res.ok) {
+        setStatus("error");
+        setErrorMessage(
+          parsed.message ||
+            raw.slice(0, 200) ||
+            "Não foi possível enviar. Tente de novo ou use o WhatsApp.",
+        );
+        return;
+      }
+
+      setStatus("success");
+      form.reset();
+    } catch {
+      setStatus("error");
+      setErrorMessage("Falha de conexão. Verifique a internet ou tente o WhatsApp.");
+    }
+  }
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto px-4 py-8 md:py-10 scroll-mt-28">
@@ -62,7 +131,7 @@ export default function Contact() {
               </li>
             </ul>
 
-            <form className="mt-6 flex flex-col gap-3.5" onSubmit={(e) => e.preventDefault()}>
+            <form className="mt-6 flex flex-col gap-3.5" onSubmit={handleSubmit}>
               <div className="grid sm:grid-cols-2 gap-3.5">
                 <input className={inputClass} name="nome" type="text" placeholder="Nome completo *" required />
                 <input className={inputClass} name="email" type="email" placeholder="E-mail *" required />
@@ -84,11 +153,32 @@ export default function Contact() {
                 rows={5}
                 required
               />
+              {/* Honeypot FormSubmit — se preenchido, o envio é ignorado (anti-bot). */}
+              <input
+                type="text"
+                name="_honey"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="sr-only"
+              />
+              {status === "success" && (
+                <p className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-theme">
+                  Sua solicitação foi enviada com sucesso! Em breve a equipe entra em contato.
+                </p>
+              )}
+              {status === "error" && errorMessage && (
+                <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-theme" role="alert">
+                  {errorMessage}
+                </p>
+              )}
               <button
                 type="submit"
-                className="mt-1 w-full sm:w-auto sm:self-start rounded-lg bg-[#ff7900] hover:bg-[#fc7010] text-white font-extrabold uppercase tracking-wide text-base px-10 py-4 shadow-lg shadow-black/30 transition-colors border-2 border-transparent hover:border-white/20"
+                disabled={status === "sending"}
+                aria-busy={status === "sending"}
+                className="mt-1 w-full sm:w-auto sm:self-start rounded-lg bg-[#ff7900] hover:bg-[#fc7010] disabled:opacity-60 disabled:pointer-events-none text-white font-extrabold uppercase tracking-wide text-base px-10 py-4 shadow-lg shadow-black/30 transition-colors border-2 border-transparent hover:border-white/20"
               >
-                Quero meu orçamento agora
+                {status === "sending" ? "Enviando…" : "Quero meu orçamento agora"}
               </button>
               <p className="text-xs text-theme-muted">
                 Ao enviar, você autoriza o contato da Demolidora Santiago pelos canais informados.
@@ -180,7 +270,7 @@ export default function Contact() {
                 referrerPolicy="no-referrer-when-downgrade"
               />
               <p className="px-3 py-2 text-[11px] text-theme-muted text-center">
-                Área de atuação — São Paulo e região. Atualize o mapa com o endereço da sede quando necessário.
+                Referência: Casa Grande, Diadema — SP. Ajuste o embed do Google Maps se tiver número e CEP exatos da sede.
               </p>
             </section>
           </aside>
