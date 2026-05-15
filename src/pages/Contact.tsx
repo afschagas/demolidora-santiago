@@ -2,7 +2,6 @@ import { useState } from "react";
 import Layout from "../components/Layout";
 import { CONTACT, contactFormSubmitAjaxUrl } from "../data/contact";
 import {
-  FaPhone,
   FaWhatsapp,
   FaEnvelope,
   FaClock,
@@ -202,18 +201,6 @@ export default function Contact() {
             <div className="theme-card p-5 md:p-6 space-y-4">
               <h3 className="text-sm font-bold uppercase tracking-wide text-[#fc700f]">Fale conosco</h3>
               <ul className="space-y-3.5 text-sm">
-                <li>
-                  <a
-                    href={`tel:${CONTACT.phoneTel}`}
-                    className="flex items-start gap-3 text-theme hover:text-[#fc700f] transition-colors"
-                  >
-                    <FaPhone className="text-[#fc700f] shrink-0 mt-0.5 text-base" aria-hidden />
-                    <span>
-                      <span className="block text-theme-muted text-xs">Telefone</span>
-                      {CONTACT.phoneDisplay}
-                    </span>
-                  </a>
-                </li>
                 <li>
                   <a
                     href={CONTACT.whatsappUrl}

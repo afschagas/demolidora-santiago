@@ -1,11 +1,10 @@
 import {
-  FaPhone,
   FaWhatsapp,
   FaEnvelope,
   FaClock,
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
+  // FaFacebookF,
+  // FaInstagram,
+  // FaLinkedinIn,
 } from "react-icons/fa";
 import { CONTACT } from "../data/contact";
 
@@ -17,10 +16,6 @@ export default function Topbar() {
     <div className="app-topbar text-sm">
       <div className="max-w-7xl mx-auto px-4 py-2.5 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 justify-center lg:justify-start">
-          <a href={`tel:${CONTACT.phoneTel}`} className={link}>
-            <FaPhone className="text-[#fc700f] shrink-0" aria-hidden />
-            <span>{CONTACT.phoneDisplay}</span>
-          </a>
           <a href={CONTACT.whatsappUrl} target="_blank" rel="noopener noreferrer" className={link}>
             <FaWhatsapp className="text-[#fc700f] shrink-0" aria-hidden />
             <span>{CONTACT.whatsappDisplay}</span>
@@ -42,6 +37,7 @@ export default function Topbar() {
             <FaClock className="text-[#fc700f] shrink-0" aria-hidden />
             <span className="text-center leading-tight">{CONTACT.hoursLine}</span>
           </span>
+          {/* Redes sociais — reativar quando houver links oficiais
           <div className="flex items-center gap-2 border-l border-theme pl-3 ml-1">
             <a
               href="#"
@@ -65,6 +61,7 @@ export default function Topbar() {
               <FaLinkedinIn />
             </a>
           </div>
+          */}
         </div>
       </div>
     </div>

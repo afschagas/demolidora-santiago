@@ -1,10 +1,8 @@
 /** Dados de contato e localização (única fonte para site e topbar). */
 export const CONTACT = {
-  phoneDisplay: "+55 (11) 0000-0000",
-  phoneTel: "5511000000000",
-  whatsappDisplay: "+55 (11) 99999-9999",
-  whatsappNumber: "5511999999999",
-  whatsappUrl: "https://wa.me/5511999999999",
+  whatsappDisplay: "+55 (11) 96359-7924",
+  whatsappNumber: "5511963597924",
+  whatsappUrl: "https://wa.me/5511963597924",
   email: "contato@demolidorasantiago.com.br",
   hoursLine: "Seg a Sex: 8h às 17h30 | Sáb: 8h às 12h",
   addressLine: "Casa Grande, Diadema — SP",
