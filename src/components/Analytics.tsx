@@ -8,12 +8,13 @@ export default function Analytics() {
   const { consent } = useCookieConsent();
 
   useEffect(() => {
-    if (consent === "accepted") initAnalytics();
-  }, [consent]);
-
-  useEffect(() => {
     if (consent !== "accepted") return;
-    trackPageView(location.pathname + location.search);
+
+    const path = location.pathname + location.search;
+
+    void initAnalytics().then(() => {
+      trackPageView(path);
+    });
   }, [location, consent]);
 
   return null;

@@ -31,7 +31,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
   const acceptCookies = useCallback(() => {
     writeCookieConsent("accepted");
     setConsent("accepted");
-    initAnalytics();
+    void initAnalytics();
   }, []);
 
   const rejectCookies = useCallback(() => {
