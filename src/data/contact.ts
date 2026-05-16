@@ -13,7 +13,20 @@ export const CONTACT = {
     "https://maps.google.com/maps?q=Casa%20Grande%2C%20Diadema%2C%20SP&hl=pt-BR&z=14&output=embed",
 } as const;
 
-/** URL AJAX do FormSubmit — entrega na caixa `CONTACT.email` (ex.: Hostinger). */
+/**
+ * Endpoint do formulário (mesma origem — `public/api/contact.php` no Hostinger).
+ * Em dev (`npm run dev`) o PHP não roda; teste em produção ou defina VITE_CONTACT_API_URL.
+ */
+export function contactFormApiUrl(): string {
+  const custom = import.meta.env.VITE_CONTACT_API_URL?.trim();
+  if (custom) return custom;
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/api/contact.php`;
+  }
+  return "/api/contact.php";
+}
+
+/** @deprecated FormSubmit instável — mantido só como referência */
 export function contactFormSubmitAjaxUrl(): string {
   return `https://formsubmit.co/ajax/${encodeURIComponent(CONTACT.email)}`;
 }

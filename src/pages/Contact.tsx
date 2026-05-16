@@ -1,6 +1,7 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import Layout from "../components/Layout";
-import { CONTACT, contactFormSubmitAjaxUrl } from "../data/contact";
+import { CONTACT, contactFormApiUrl } from "../data/contact";
 import {
   FaWhatsapp,
   FaEnvelope,
@@ -14,8 +15,7 @@ import {
 const inputClass = "form-input";
 
 export default function Contact() {
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<"idle" | "sending">("idle");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,17 +29,22 @@ export default function Contact() {
     const mensagem = String(fd.get("mensagem") ?? "").trim();
 
     setStatus("sending");
-    setErrorMessage(null);
 
     const pageUrl =
       import.meta.env.VITE_PUBLIC_SITE_URL?.trim() ||
       `${window.location.origin}${window.location.pathname}`;
 
+    const honey = String(fd.get("_honey") ?? "").trim();
+    if (honey) {
+      toast.success("Sua solicitação foi enviada com sucesso");
+      form.reset();
+      setStatus("idle");
+      return;
+    }
+
     const body: Record<string, string> = {
       _subject: `Orçamento pelo site — ${nome || "visitante"}`,
       _replyto: email,
-      _template: "table",
-      /** FormSubmit: evita localhost no e-mail quando a política de referrer não envia a URL correta (ver ajuda do FormSubmit). */
       _url: pageUrl,
       Identificação: "Solicitação de orçamento — Demolidora Santiago (formulário do site)",
       "Nome completo": nome,
@@ -51,7 +56,7 @@ export default function Contact() {
     };
 
     try {
-      const res = await fetch(contactFormSubmitAjaxUrl(), {
+      const res = await fetch(contactFormApiUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(body),
@@ -61,24 +66,25 @@ export default function Contact() {
       try {
         parsed = JSON.parse(raw) as typeof parsed;
       } catch {
-        /* FormSubmit às vezes responde texto simples */
+        /* resposta não-JSON */
       }
 
-      if (!res.ok) {
-        setStatus("error");
-        setErrorMessage(
-          parsed.message ||
-            raw.slice(0, 200) ||
-            "Não foi possível enviar. Tente de novo ou use o WhatsApp.",
-        );
+      const ok =
+        res.ok &&
+        (parsed.success === true || parsed.success === "true" || parsed.success === "ok");
+
+      if (!ok) {
+        toast.error("Erro ao enviar o seu contato!");
+        setStatus("idle");
         return;
       }
 
-      setStatus("success");
+      toast.success("Sua solicitação foi enviada com sucesso");
       form.reset();
+      setStatus("idle");
     } catch {
-      setStatus("error");
-      setErrorMessage("Falha de conexão. Verifique a internet ou tente o WhatsApp.");
+      toast.error("Erro ao enviar o seu contato!");
+      setStatus("idle");
     }
   }
 
@@ -161,16 +167,6 @@ export default function Contact() {
                 aria-hidden="true"
                 className="sr-only"
               />
-              {status === "success" && (
-                <p className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-theme">
-                  Sua solicitação foi enviada com sucesso! Em breve a equipe entra em contato.
-                </p>
-              )}
-              {status === "error" && errorMessage && (
-                <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-theme" role="alert">
-                  {errorMessage}
-                </p>
-              )}
               <button
                 type="submit"
                 disabled={status === "sending"}
