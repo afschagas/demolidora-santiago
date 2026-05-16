@@ -10,11 +10,8 @@ export default function Analytics() {
   useEffect(() => {
     if (consent !== "accepted") return;
 
-    const path = location.pathname + location.search;
-
-    void initAnalytics().then(() => {
-      trackPageView(path);
-    });
+    initAnalytics();
+    trackPageView(location.pathname + location.search);
   }, [location, consent]);
 
   return null;
