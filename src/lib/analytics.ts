@@ -18,39 +18,59 @@ function ensureGtagStub() {
   }
 }
 
+function fireConfig(path: string) {
+  if (!window.gtag || !MEASUREMENT_ID) return;
+  window.gtag("config", MEASUREMENT_ID, {
+    page_path: path,
+    page_location: window.location.origin + path,
+    page_title: document.title,
+  });
+}
+
 export function getMeasurementId(): string {
   return MEASUREMENT_ID;
 }
 
-/** Padrão oficial Google: config na hora, script carrega em paralelo. */
 export function initAnalytics(): void {
-  if (typeof window === "undefined" || !MEASUREMENT_ID || window.__gaInitialized) {
+  if (typeof window === "undefined" || !MEASUREMENT_ID) return;
+
+  ensureGtagStub();
+
+  const path = window.location.pathname + window.location.search;
+
+  if (!window.__gaInitialized) {
+    window.__gaInitialized = true;
+    window.gtag!("js", new Date());
+  }
+
+  fireConfig(path);
+
+  const selector = `script[src*="googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}"]`;
+  let script = document.querySelector(selector) as HTMLScriptElement | null;
+
+  const onScriptReady = () => fireConfig(path);
+
+  if (!script) {
+    script = document.createElement("script");
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
+    script.addEventListener("load", onScriptReady, { once: true });
+    document.head.appendChild(script);
     return;
   }
 
-  window.__gaInitialized = true;
-  ensureGtagStub();
+  const loaded = (script as HTMLScriptElement & { complete?: boolean }).complete;
+  if (loaded) {
+    onScriptReady();
+    return;
+  }
 
-  window.gtag!("js", new Date());
-  window.gtag!("config", MEASUREMENT_ID);
-
-  const scriptExists = document.querySelector(
-    `script[src*="googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}"]`,
-  );
-  if (scriptExists) return;
-
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
-  document.head.appendChild(script);
+  script.addEventListener("load", onScriptReady, { once: true });
 }
 
 export function trackPageView(path: string): void {
-  if (!MEASUREMENT_ID || !window.__gaInitialized || !window.gtag) return;
-
-  window.gtag("config", MEASUREMENT_ID, {
-    page_path: path,
-  });
+  if (!MEASUREMENT_ID || !window.__gaInitialized) return;
+  fireConfig(path);
 }
 
 export function trackEvent(

@@ -12,7 +12,7 @@ import {
   writeCookieConsent,
   type CookieConsentValue,
 } from "../lib/cookieConsent";
-import { initAnalytics } from "../lib/analytics";
+import { initAnalytics, trackPageView } from "../lib/analytics";
 
 type CookieConsentContextValue = {
   consent: CookieConsentValue | null;
@@ -32,6 +32,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
     writeCookieConsent("accepted");
     setConsent("accepted");
     initAnalytics();
+    trackPageView(window.location.pathname + window.location.search);
   }, []);
 
   const rejectCookies = useCallback(() => {
