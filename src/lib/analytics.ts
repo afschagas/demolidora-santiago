@@ -1,21 +1,29 @@
 declare global {
   interface Window {
     dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
+    gtag?: Gtag;
     __gaInitialized?: boolean;
   }
 }
+
+/** Igual ao snippet oficial: dataLayer.push(arguments) */
+type Gtag = {
+  (command: "js", date: Date): void;
+  (command: "config", targetId: string, config?: Record<string, unknown>): void;
+  (command: "event", eventName: string, params?: Record<string, unknown>): void;
+};
 
 const MEASUREMENT_ID =
   import.meta.env.VITE_GA_MEASUREMENT_ID?.trim() || "G-XV2DZ3H7H5";
 
 function ensureGtagStub() {
   window.dataLayer = window.dataLayer || [];
-  if (!window.gtag) {
-    window.gtag = function gtag(...args: unknown[]) {
-      window.dataLayer!.push(args);
-    };
-  }
+  if (window.gtag) return;
+
+  // Deve usar `arguments`, não rest params — senão o GA não envia collect.
+  window.gtag = function () {
+    window.dataLayer!.push(arguments);
+  } as Gtag;
 }
 
 function fireConfig(path: string) {
