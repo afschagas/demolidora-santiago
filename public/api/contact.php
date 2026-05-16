@@ -96,16 +96,19 @@ if ($pageUrl !== '') {
 
 $body = implode("\n", $bodyLines);
 
-$from = 'noreply@demolidorasantiago.com.br';
+/** Caixa real no Hostinger — melhora SPF/DKIM que noreply@ inexistente. */
+$from = 'contato@demolidorasantiago.com.br';
 $headers = implode("\r\n", [
     'MIME-Version: 1.0',
     'Content-Type: text/plain; charset=UTF-8',
     'From: Demolidora Santiago <' . $from . '>',
     'Reply-To: ' . $nome . ' <' . $email . '>',
-    'X-Mailer: PHP/' . phpversion(),
+    'X-Priority: 3',
 ]);
 
-$sent = @mail($to, '=?UTF-8?B?' . base64_encode($mailSubject) . '?=', $body, $headers);
+$encodedSubject = '=?UTF-8?B?' . base64_encode($mailSubject) . '?=';
+/** -f alinha o envelope sender com o domínio (menos chance de spam). */
+$sent = @mail($to, $encodedSubject, $body, $headers, '-f ' . $from);
 
 if (!$sent) {
     http_response_code(500);
